@@ -1,0 +1,9 @@
+gradio>=6.0
+graphviz>=0.21
+langchain>=1.0
+langchain-openai>=1.0
+langchain-tavily>=0.2
+langgraph>=1.0
+python-dotenv>=1.0
+requests>=2.31
+tavily-python>=0.5
