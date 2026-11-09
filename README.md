@@ -90,6 +90,13 @@ fails, inspect its GitHub Actions run logs.
 
 ## Deploy on Hugging Face Spaces
 
+### Hugging Face ZeroGPU compatibility
+
+This Space may be provisioned on ZeroGPU on the free tier. Roamly does not run
+GPU workloads; it registers a tiny no-op `@spaces.GPU` handler only to satisfy
+Hugging Face's ZeroGPU startup check. Visitors do not need to click or use it.
+
+
 This repository's Space entry point is `app.py`. Upload `app.py`,
 `travel_agent.py`, `requirements.txt`, and this README to the Space repository.
 Choose **Gradio** SDK and **CPU Basic** hardware. The visitor enters their own
