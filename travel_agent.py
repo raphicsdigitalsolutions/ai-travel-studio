@@ -25,16 +25,9 @@ from langgraph.prebuilt import ToolNode
 
 load_dotenv(dotenv_path=Path(__file__).with_name(".env"), override=False)
 
-missing_keys = [
-    key for key in ("TAVILY_API_KEY",) if not os.environ.get(key)
-]
-if missing_keys:
-    raise RuntimeError(
-        "Missing required API key(s): "
-        + ", ".join(missing_keys)
-        + ". Configure them as server environment secrets or in the .env file "
-        "beside travel_agent.py."
-    )
+# Tavily is optional: the app still works without web search, using OpenStreetMap
+# and the travel-planning model. Set TAVILY_API_KEY to enable current web search.
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "").strip()
 
 OSM_USER_AGENT = "LangGraphTravelAgent/1.0 (educational local travel assistant)"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
@@ -242,7 +235,7 @@ def get_current_date_tool() -> str:
 
 
 tools = [
-    TavilySearch(max_results=5),
+    *([TavilySearch(max_results=5)] if TAVILY_API_KEY else []),
     find_airports_tool,
     search_hotels_tool,
     search_local_places_tool,
@@ -288,13 +281,14 @@ workflow.add_conditional_edges(
 workflow.add_edge("tools", "agent")
 travel_agent = workflow.compile()
 
-SYSTEM_PROMPT = """You are a practical travel-planning assistant.
-Use web search for current travel advisories and recent information. Use OpenStreetMap
-tools for mapped airports, hotels, restaurants, and attractions. OSM data can be
-incomplete; hotel listings do not mean availability or prices are known. OSM does not
-provide flight schedules or live fares: give the flight-search link and never invent
-prices, routes, or availability. Ask a short follow-up if an essential trip detail is
-missing. Clearly distinguish sourced facts from suggestions and include map links."""
+SYSTEM_PROMPT = f"""You are a practical travel-planning assistant.
+{"Use web search for current travel advisories and recent information." if TAVILY_API_KEY else "Web search is unavailable in this deployment; say so when asked for live updates and do not pretend to have searched."}
+Use OpenStreetMap tools for mapped airports, hotels, restaurants, and attractions.
+OSM data can be incomplete; hotel listings do not mean availability or prices are known.
+OSM does not provide flight schedules or live fares: give the flight-search link and
+never invent prices, routes, or availability. Ask a short follow-up if an essential
+trip detail is missing. Clearly distinguish sourced facts from suggestions and include
+map links."""
 
 
 def _history_messages(history: list | None) -> list[BaseMessage]:
@@ -400,6 +394,22 @@ APP_CSS = """
     --roam-glow: rgba(14,168,154,.55);
     --roam-card-bg: rgba(255,255,255,.92);
     --neon-teal: #0ef5d8;
+}
+
+.roam-status {
+    width: fit-content;
+    margin: 8px 4px 14px !important;
+    padding: 9px 14px !important;
+    border: 1px solid rgba(14,168,154,.22) !important;
+    border-radius: 999px !important;
+    color: #28665f !important;
+    background: rgba(255,255,255,.62) !important;
+    box-shadow: 0 7px 18px rgba(12,87,77,.07);
+    font-size: 12px !important;
+}
+body.dark .roam-status {
+    color: #b8eee0 !important;
+    background: rgba(16,48,46,.72) !important;
 }
 
 /* ── Scrollbar ── */
@@ -787,6 +797,47 @@ html, body, gradio-app { width: 100%; min-width: 0; background: #e8f4ef; }
     transform-style: preserve-3d;
     animation: roam-float 7s ease-in-out infinite;
 }
+
+/* Floating 3D destination widgets give the hero a layered travel-dashboard feel. */
+.roam-float-card {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 146px;
+    padding: 11px 13px;
+    border: 1px solid rgba(207,255,237,.42);
+    border-radius: 15px;
+    color: #effff8;
+    background: linear-gradient(145deg, rgba(255,255,255,.2), rgba(12,54,54,.76));
+    box-shadow: 0 1px 0 rgba(255,255,255,.22) inset, 0 14px 28px rgba(0,0,0,.23), 0 0 22px rgba(52,226,186,.12);
+    backdrop-filter: blur(12px);
+    transform-style: preserve-3d;
+    animation: roam-card-drift 6s ease-in-out infinite;
+    pointer-events: none;
+}
+.roam-float-card strong { display: block; color: #fff; font-size: 11px; letter-spacing: .02em; }
+.roam-float-card small { display: block; margin-top: 2px; color: rgba(226,255,242,.72); font-size: 9px; }
+.roam-float-icon {
+    display: grid;
+    width: 31px; height: 31px;
+    flex: 0 0 31px;
+    place-items: center;
+    border: 1px solid rgba(212,255,240,.28);
+    border-radius: 10px;
+    background: linear-gradient(145deg, #31d7ac, #0a786e);
+    box-shadow: 0 3px 0 rgba(2,52,47,.35), 0 7px 14px rgba(0,0,0,.18);
+    font-size: 15px;
+    transform: translateZ(16px) rotate(-7deg);
+}
+.roam-float-card-one { top: 18px; left: -4px; transform: rotateY(12deg) rotateZ(-5deg); }
+.roam-float-card-two { right: -6px; bottom: 20px; animation-delay: -2.4s; transform: rotateY(-12deg) rotateZ(4deg); }
+@keyframes roam-card-drift {
+    0%,100% { margin-top: 0; filter: brightness(1); }
+    50% { margin-top: -10px; filter: brightness(1.12); }
+}
+
 
 /* A shaded sphere with a moving, repeating surface map. */
 .roam-globe {
@@ -1469,6 +1520,9 @@ body.dark .gradio-container.gradio-container .contain .roam-chat form > div:last
     .roam-orbit-two { width: 200px; height: 126px; }
     .roam-pin-one { top: 10px; right: 0; }
     .roam-pin-two { bottom: 8px; left: 2px; }
+    .roam-float-card { min-width: 132px; padding: 9px 10px; }
+    .roam-float-card-one { top: 2px; left: -2px; }
+    .roam-float-card-two { right: -2px; bottom: 0; }
     .roam-services { grid-template-columns: 1fr; gap: 11px; }
     .roam-service { min-height: 0; padding: 18px 20px; }
     .roam-examples { grid-template-columns: 1fr !important; margin: 4px 10px 14px !important; }
@@ -1621,6 +1675,14 @@ with gr.Blocks(
                     </div>
                     <div class="roam-globe-shade"></div>
                 </div>
+                <div class="roam-float-card roam-float-card-one">
+                    <span class="roam-float-icon">⌖</span>
+                    <span><strong>Discover places</strong><small>Local highlights</small></span>
+                </div>
+                <div class="roam-float-card roam-float-card-two">
+                    <span class="roam-float-icon">✦</span>
+                    <span><strong>Your itinerary</strong><small>Made around you</small></span>
+                </div>
                 <div class="roam-pin roam-pin-one">🌍 Explore the world</div>
                 <div class="roam-pin roam-pin-two">✈️ Your next adventure</div>
             </div>
@@ -1628,7 +1690,20 @@ with gr.Blocks(
         </header>
         """
     )
-    gr.Markdown("### A little help for every part of the trip", elem_classes=["roam-section-title"])
+    gr.Markdown(
+        "### A little help for every part of the trip",
+        elem_classes=["roam-section-title"],
+    )
+    gr.Markdown(
+        (
+            "Live web search is enabled."
+            if TAVILY_API_KEY
+            else "Web search is off in this deployment. Add the **TAVILY_API_KEY** "
+                 "secret to enable current travel searches; mapped place discovery "
+                 "and AI planning remain available."
+        ),
+        elem_classes=["roam-status"],
+    )
     gr.HTML(
         """
         <section class="roam-services" aria-label="Travel assistant features">
@@ -1699,11 +1774,19 @@ with gr.Blocks(
     )
 
 
-if __name__ == "__main__":
+def launch_app() -> None:
+    """Launch the Gradio app using platform-provided host and port settings."""
     demo.launch(
         theme=theme,
         css=APP_CSS,
-        server_name="127.0.0.1",
-        share=False,
-        inbrowser=True,
+        server_name=os.environ.get("GRADIO_SERVER_NAME", "0.0.0.0"),
+        server_port=int(
+            os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860"))
+        ),
+        share=os.environ.get("GRADIO_SHARE", "false").lower() == "true",
+        inbrowser=os.environ.get("GRADIO_INBROWSER", "false").lower() == "true",
     )
+
+
+if __name__ == "__main__":
+    launch_app()

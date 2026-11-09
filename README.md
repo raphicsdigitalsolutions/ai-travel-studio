@@ -1,49 +1,99 @@
-# LangGraph Travel Assistant
+---
+title: Roamly - 3D AI Travel Studio
+emoji: 🌍
+colorFrom: teal
+colorTo: green
+sdk: gradio
+sdk_version: 6.0.0
+app_file: app.py
+pinned: false
+---
 
-This local Gradio app combines:
+# Roamly — 3D AI Travel Studio
 
-- OpenStreetMap (Nominatim and Overpass) for mapped hotels, restaurants,
-  attractions, and airports.
-- Tavily for current web search, including travel advisories.
-- OpenAI and LangGraph for tool-using chat.
-- Google Flights search links for flight requests.
+Roamly is a Python + Gradio travel-planning assistant powered by OpenAI, LangGraph,
+OpenStreetMap, and optional Tavily web search. The interface uses a teal/mint visual
+system with a floating 3D globe, orbit rings, travel pins, layered cards, responsive
+layouts, and a secure OpenAI API-key gate.
 
-OpenStreetMap does not provide live flight schedules/fares or hotel availability
-and prices. Always verify listings and travel details with the provider.
+## What it can do
 
-## API keys and deployment
+- Plan trips and answer travel-planning questions through an AI chat.
+- Find mapped airports, hotels, restaurants, and attractions with OpenStreetMap.
+- Generate Google Flights search links. Flight schedules and fares are not supplied
+  by OpenStreetMap, so the app does not invent live prices.
+- Search current travel information when a Tavily key is configured.
+- Run in light or dark Gradio theme mode and adapt to mobile screens.
 
-- The app asks for an OpenAI API key in a password-style prompt for each new
-  session. It verifies the key, keeps it in that session's server-side memory,
-  and does not write it to a file or browser storage.
-- The key is sent to the app server to make OpenAI requests. Only enter it on a
-  deployment you trust, and serve the public app over HTTPS.
-- `TAVILY_API_KEY` is still required by the web-search feature. Set it as a
-  private environment secret in your hosting provider; do not commit it or the
-  local `.env` file to GitHub.
-- GitHub stores the source code but does not run this Gradio app by itself.
-  Deploy it to a Python app host and configure `TAVILY_API_KEY` there.
+## API keys and security
 
-## Setup on Windows
+### OpenAI key (entered by each visitor)
 
-1. Keep `TAVILY_API_KEY` in the `.env` file beside `travel_agent.py`. The
-   OpenAI key is entered in the app prompt. Do not share or commit either key.
-2. From this folder, create and activate a virtual environment, then install
-   the requirements:
+The app displays a password-style modal when a session starts. Visitors enter their
+own OpenAI API key and confirm that they trust the deployment before the app verifies
+it with OpenAI. The key is held in that Gradio session's server-side state and is not
+written to a file or browser local storage.
+
+**Important:** a visitor's key is sent to the server hosting this app. Only enter it
+on a deployment you control or trust. Use HTTPS for public deployments. Do not add
+API keys to Git, screenshots, logs, or README files.
+
+### Tavily key (optional server secret)
+
+Set `TAVILY_API_KEY` in the Space's Settings → Variables and secrets to enable current
+web search. Without it, the app still starts and supports AI planning, OpenStreetMap
+discovery, and flight-search links; the interface indicates that live web search is
+disabled.
+
+Optional model setting:
+
+- `OPENAI_MODEL` — defaults to `gpt-4o-mini`.
+
+## Deploy on Hugging Face Spaces
+
+This repository's Space entry point is `app.py`. Upload `app.py`,
+`travel_agent.py`, `requirements.txt`, and this README to the Space repository.
+Choose **Gradio** SDK and **CPU Basic** hardware. The visitor enters their own
+OpenAI API key through the app's startup modal.
+
+## Run locally on Windows
+
+1. Install Python 3.10 or newer.
+2. Create and activate a virtual environment:
 
    ```powershell
    py -m venv .venv
    .\.venv\Scripts\Activate.ps1
-   python -m pip install -r requirements.txt
    ```
 
-3. Start the app:
+3. Install dependencies:
 
    ```powershell
-   python travel_agent.py
+   pip install -r requirements.txt
    ```
 
-The app opens on `http://127.0.0.1:7860`. OpenAI and Tavily requests may incur
-charges according to your accounts. OpenStreetMap's public services are
-rate-limited; Nominatim requests are cached and spaced, and map results include
-OpenStreetMap attribution.
+4. Start the app:
+
+   ```powershell
+   python app.py
+   ```
+
+5. Open `http://127.0.0.1:7860`.
+
+## Data and service limitations
+
+- OpenStreetMap data can be incomplete or outdated. Verify important places and
+  addresses with the provider before travelling.
+- Nominatim and Overpass are public community services with usage policies and
+  rate limits.
+- OpenStreetMap does not confirm accommodation availability, hotel pricing, flight
+  schedules, or live fares.
+- OpenAI and Tavily usage can incur charges on the respective accounts.
+
+## Project files
+
+- `app.py` — Gradio deployment entry point.
+- `travel_agent.py` — Gradio interface, API-key gate, LangGraph workflow, tools, and launcher.
+- `requirements.txt` — Python dependencies.
+
+Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright).
