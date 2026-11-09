@@ -798,6 +798,47 @@ html, body, gradio-app { width: 100%; min-width: 0; background: #e8f4ef; }
     animation: roam-float 7s ease-in-out infinite;
 }
 
+/* Floating 3D destination widgets give the hero a layered travel-dashboard feel. */
+.roam-float-card {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 146px;
+    padding: 11px 13px;
+    border: 1px solid rgba(207,255,237,.42);
+    border-radius: 15px;
+    color: #effff8;
+    background: linear-gradient(145deg, rgba(255,255,255,.2), rgba(12,54,54,.76));
+    box-shadow: 0 1px 0 rgba(255,255,255,.22) inset, 0 14px 28px rgba(0,0,0,.23), 0 0 22px rgba(52,226,186,.12);
+    backdrop-filter: blur(12px);
+    transform-style: preserve-3d;
+    animation: roam-card-drift 6s ease-in-out infinite;
+    pointer-events: none;
+}
+.roam-float-card strong { display: block; color: #fff; font-size: 11px; letter-spacing: .02em; }
+.roam-float-card small { display: block; margin-top: 2px; color: rgba(226,255,242,.72); font-size: 9px; }
+.roam-float-icon {
+    display: grid;
+    width: 31px; height: 31px;
+    flex: 0 0 31px;
+    place-items: center;
+    border: 1px solid rgba(212,255,240,.28);
+    border-radius: 10px;
+    background: linear-gradient(145deg, #31d7ac, #0a786e);
+    box-shadow: 0 3px 0 rgba(2,52,47,.35), 0 7px 14px rgba(0,0,0,.18);
+    font-size: 15px;
+    transform: translateZ(16px) rotate(-7deg);
+}
+.roam-float-card-one { top: 18px; left: -4px; transform: rotateY(12deg) rotateZ(-5deg); }
+.roam-float-card-two { right: -6px; bottom: 20px; animation-delay: -2.4s; transform: rotateY(-12deg) rotateZ(4deg); }
+@keyframes roam-card-drift {
+    0%,100% { margin-top: 0; filter: brightness(1); }
+    50% { margin-top: -10px; filter: brightness(1.12); }
+}
+
+
 /* A shaded sphere with a moving, repeating surface map. */
 .roam-globe {
     position: relative;
@@ -1479,6 +1520,9 @@ body.dark .gradio-container.gradio-container .contain .roam-chat form > div:last
     .roam-orbit-two { width: 200px; height: 126px; }
     .roam-pin-one { top: 10px; right: 0; }
     .roam-pin-two { bottom: 8px; left: 2px; }
+    .roam-float-card { min-width: 132px; padding: 9px 10px; }
+    .roam-float-card-one { top: 2px; left: -2px; }
+    .roam-float-card-two { right: -2px; bottom: 0; }
     .roam-services { grid-template-columns: 1fr; gap: 11px; }
     .roam-service { min-height: 0; padding: 18px 20px; }
     .roam-examples { grid-template-columns: 1fr !important; margin: 4px 10px 14px !important; }
@@ -1631,6 +1675,14 @@ with gr.Blocks(
                     </div>
                     <div class="roam-globe-shade"></div>
                 </div>
+                <div class="roam-float-card roam-float-card-one">
+                    <span class="roam-float-icon">⌖</span>
+                    <span><strong>Discover places</strong><small>Local highlights</small></span>
+                </div>
+                <div class="roam-float-card roam-float-card-two">
+                    <span class="roam-float-icon">✦</span>
+                    <span><strong>Your itinerary</strong><small>Made around you</small></span>
+                </div>
                 <div class="roam-pin roam-pin-one">🌍 Explore the world</div>
                 <div class="roam-pin roam-pin-two">✈️ Your next adventure</div>
             </div>
@@ -1722,12 +1774,19 @@ with gr.Blocks(
     )
 
 
-if __name__ == "__main__":
+def launch_app() -> None:
+    """Launch the Gradio app using platform-provided host and port settings."""
     demo.launch(
         theme=theme,
         css=APP_CSS,
         server_name=os.environ.get("GRADIO_SERVER_NAME", "0.0.0.0"),
-        server_port=int(os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860"))),
+        server_port=int(
+            os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860"))
+        ),
         share=os.environ.get("GRADIO_SHARE", "false").lower() == "true",
         inbrowser=os.environ.get("GRADIO_INBROWSER", "false").lower() == "true",
     )
+
+
+if __name__ == "__main__":
+    launch_app()
