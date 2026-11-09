@@ -1,7 +1,7 @@
 ---
 title: Roamly - 3D AI Travel Studio
 emoji: 🌍
-colorFrom: teal
+colorFrom: blue
 colorTo: green
 sdk: gradio
 sdk_version: 6.0.0
