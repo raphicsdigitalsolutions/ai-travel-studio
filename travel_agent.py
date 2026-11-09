@@ -25,8 +25,8 @@ from langgraph.prebuilt import ToolNode
 
 load_dotenv(dotenv_path=Path(__file__).with_name(".env"), override=False)
 
-# Tavily is optional: the app still works without web search, using OpenStreetMap
-# and the travel-planning model. Set TAVILY_API_KEY to enable current web search.
+# A deployment-level key is optional. Each visitor can also enter their own
+# Tavily key in the startup dialog; the session key takes precedence.
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "").strip()
 
 OSM_USER_AGENT = "LangGraphTravelAgent/1.0 (educational local travel assistant)"
@@ -234,8 +234,35 @@ def get_current_date_tool() -> str:
     return date.today().isoformat()
 
 
+@tool
+def search_web_tool(query: str, config: RunnableConfig) -> str:
+    """Search the live web for current travel information, advisories, and destination details."""
+    configurable = config.get("configurable", {})
+    api_key = (
+        configurable.get("tavily_api_key")
+        or TAVILY_API_KEY
+    )
+    if not isinstance(api_key, str) or not api_key.strip():
+        return (
+            "Live web search is not configured. Ask the user to enter a Tavily API "
+            "key in the startup dialog, or use OpenStreetMap tools for mapped places."
+        )
+
+    try:
+        search = TavilySearch(max_results=5, tavily_api_key=api_key.strip())
+        result = search.invoke({"query": query})
+        return str(result)
+    except Exception as error:
+        # Do not expose credentials or full request details in user-facing output.
+        return (
+            "Tavily web search failed. Check that the Tavily API key is valid "
+            "and that the service is available, then try again. "
+            f"Error type: {type(error).__name__}"
+        )
+
+
 tools = [
-    *([TavilySearch(max_results=5)] if TAVILY_API_KEY else []),
+    search_web_tool,
     find_airports_tool,
     search_hotels_tool,
     search_local_places_tool,
@@ -281,8 +308,10 @@ workflow.add_conditional_edges(
 workflow.add_edge("tools", "agent")
 travel_agent = workflow.compile()
 
-SYSTEM_PROMPT = f"""You are a practical travel-planning assistant.
-{"Use web search for current travel advisories and recent information." if TAVILY_API_KEY else "Web search is unavailable in this deployment; say so when asked for live updates and do not pretend to have searched."}
+SYSTEM_PROMPT = """You are a practical travel-planning assistant.
+Use the search_web_tool for current travel advisories, recent information, and
+destination details. If it reports that no Tavily key is configured or search fails,
+be transparent and do not pretend that a live search succeeded.
 Use OpenStreetMap tools for mapped airports, hotels, restaurants, and attractions.
 OSM data can be incomplete; hotel listings do not mean availability or prices are known.
 OSM does not provide flight schedules or live fares: give the flight-search link and
@@ -311,15 +340,17 @@ def _history_messages(history: list | None) -> list[BaseMessage]:
 
 
 def verify_openai_api_key(
-    api_key: str, trust_confirmed: bool
-) -> tuple[str, str, dict]:
-    """Verify a user's key and keep it only in that Gradio session's state."""
+    api_key: str, tavily_api_key: str, trust_confirmed: bool
+) -> tuple[str, str, str, str, dict]:
+    """Verify OpenAI and keep both visitor-provided keys only in session state."""
     if not trust_confirmed:
-        raise gr.Error("Confirm that you trust this app before sending your key.")
+        raise gr.Error("Confirm that you trust this app before sending your keys.")
 
     candidate = api_key.strip()
     if not candidate:
         raise gr.Error("Please enter your OpenAI API key.")
+
+    tavily_candidate = tavily_api_key.strip()
 
     try:
         OpenAI(api_key=candidate, timeout=15.0).models.list()
@@ -338,7 +369,7 @@ def verify_openai_api_key(
     except OpenAIError as error:
         raise gr.Error("OpenAI key verification failed. Please try again.") from error
 
-    return candidate, "", gr.update(visible=False)
+    return candidate, tavily_candidate, "", "", gr.update(visible=False)
 
 
 def _prompt_handler(prompt: str) -> Callable[[], str]:
@@ -346,7 +377,10 @@ def _prompt_handler(prompt: str) -> Callable[[], str]:
 
 
 def travel_agent_chat(
-    message: str, history: list | None = None, openai_api_key: str = ""
+    message: str,
+    history: list | None = None,
+    openai_api_key: str = "",
+    tavily_api_key: str = "",
 ):
     if not openai_api_key.strip():
         yield "Enter your OpenAI API key in the secure prompt before planning a trip."
@@ -361,7 +395,10 @@ def travel_agent_chat(
         {"messages": messages},
         {
             "recursion_limit": 15,
-            "configurable": {"openai_api_key": openai_api_key},
+            "configurable": {
+                "openai_api_key": openai_api_key,
+                "tavily_api_key": tavily_api_key,
+            },
         },
         stream_mode="updates",
     ):
@@ -1561,6 +1598,7 @@ with gr.Blocks(
     fill_width=True,
 ) as demo:
     openai_api_key_state = gr.State(value="")
+    tavily_api_key_state = gr.State(value="")
     with gr.Column(elem_id="api-key-gate", elem_classes=["roam-key-gate"]) as api_key_gate:
         with gr.Column(elem_classes=["roam-key-card"]):
             gr.HTML(
@@ -1568,8 +1606,8 @@ with gr.Blocks(
                 <div class="roam-key-icon" aria-hidden="true"><span></span></div>
                 <h2>Unlock your trip planner</h2>
                 <p class="roam-key-copy">
-                    Enter your OpenAI API key to start planning. You will need to
-                    enter it again when you start a new session.
+                    Add your OpenAI key to start planning. A Tavily key is optional
+                    and enables live web search. Keys are requested again in a new session.
                 </p>
                 """
             )
@@ -1584,8 +1622,19 @@ with gr.Blocks(
                     spellcheck=False,
                 ),
             )
+            tavily_api_key_input = gr.Textbox(
+                label="Tavily API key (optional — enables live web search)",
+                placeholder="tvly-...",
+                type="password",
+                show_label=True,
+                html_attributes=gr.InputHTMLAttributes(
+                    autocomplete="new-password",
+                    autocapitalize="off",
+                    spellcheck=False,
+                ),
+            )
             trust_confirmation = gr.Checkbox(
-                label="I trust this app with my OpenAI API key",
+                label="I trust this app with my OpenAI and optional Tavily API keys",
                 value=False,
                 elem_classes=["roam-key-trust"],
             )
@@ -1597,18 +1646,21 @@ with gr.Blocks(
             gr.HTML(
                 """
                 <p class="roam-key-footnote">
-                    Your key is sent to this app's server for OpenAI requests. It
-                    stays in session memory and is not saved to browser storage or
-                    a file. Only enter it on a site you trust.
+                    Your keys are sent to this app's server for OpenAI and (if supplied)
+                    Tavily requests. They stay in session memory and are not saved to
+                    browser storage or files. Only enter keys on a deployment you trust.
+                    You can leave Tavily blank and still use mapped-place discovery.
                 </p>
                 """
             )
     verify_key_button.click(
         fn=verify_openai_api_key,
-        inputs=[openai_api_key_input, trust_confirmation],
+        inputs=[openai_api_key_input, tavily_api_key_input, trust_confirmation],
         outputs=[
             openai_api_key_state,
+            tavily_api_key_state,
             openai_api_key_input,
+            tavily_api_key_input,
             api_key_gate,
         ],
         api_name=False,
@@ -1696,11 +1748,8 @@ with gr.Blocks(
     )
     gr.Markdown(
         (
-            "Live web search is enabled."
-            if TAVILY_API_KEY
-            else "Web search is off in this deployment. Add the **TAVILY_API_KEY** "
-                 "secret to enable current travel searches; mapped place discovery "
-                 "and AI planning remain available."
+            "Live web search is available when a visitor supplies a Tavily key in the startup dialog. "
+            "A deployment-level TAVILY_API_KEY secret can also be used as a fallback."
         ),
         elem_classes=["roam-status"],
     )
@@ -1745,7 +1794,7 @@ with gr.Blocks(
             ),
             textbox=trip_textbox,
             cache_examples=False,
-            additional_inputs=[openai_api_key_state],
+            additional_inputs=[openai_api_key_state, tavily_api_key_state],
         )
         with gr.Row(elem_classes=["roam-examples"]):
             for prompt in (
