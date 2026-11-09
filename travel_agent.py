@@ -1785,6 +1785,10 @@ def launch_app() -> None:
         ),
         share=os.environ.get("GRADIO_SHARE", "false").lower() == "true",
         inbrowser=os.environ.get("GRADIO_INBROWSER", "false").lower() == "true",
+        # Hugging Face Spaces works reliably with Gradio's built-in server;
+        # disable the experimental Node.js SSR sidecar on hosted deployments.
+        ssr_mode=False,
+        prevent_thread_lock=False,
     )
 
 
