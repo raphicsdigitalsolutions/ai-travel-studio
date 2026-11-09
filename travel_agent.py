@@ -470,7 +470,9 @@ html, body, gradio-app { width: 100%; min-width: 0; background: #e8f4ef; }
     position: fixed !important;
     z-index: 9999 !important;
     inset: 0 !important;
-    display: flex !important;
+    /* Do not force display with !important: Gradio must be able to hide this
+       gate after the visitor's OpenAI key has been verified. */
+    display: flex;
     align-items: center !important;
     justify-content: center !important;
     padding: 20px !important;
