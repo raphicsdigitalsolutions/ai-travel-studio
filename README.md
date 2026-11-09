@@ -49,6 +49,27 @@ Optional model setting:
 
 - `OPENAI_MODEL` — defaults to `gpt-4o-mini`.
 
+## Automatic deployment from GitHub
+
+Every push to the GitHub `main` branch triggers
+`.github/workflows/deploy-huggingface.yml`, which syncs the repository to this
+Space:
+
+`attaurrehmansiddiqui/roamly-travel-studio`
+
+One-time setup:
+
+1. On Hugging Face, open **Settings → Access Tokens** and create a token with
+   **Write** access (or a fine-grained token with write access to this Space).
+2. In GitHub, open this repository's **Settings → Secrets and variables → Actions**.
+3. Select **New repository secret**.
+4. Set the name to `HF_TOKEN` and paste the Hugging Face token as its value.
+5. Save. Then open GitHub **Actions** and run **Deploy Roamly to Hugging Face Spaces**
+   once with **Run workflow**, or push a new commit to `main`.
+
+Do not put the token in source files, README content, or commits. If a workflow
+fails, inspect its GitHub Actions run logs.
+
 ## Deploy on Hugging Face Spaces
 
 This repository's Space entry point is `app.py`. Upload `app.py`,
