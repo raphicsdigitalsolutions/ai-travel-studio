@@ -1679,7 +1679,7 @@ with gr.Blocks(
                 </p>
                 <div class="roam-hero-meta" aria-label="Travel planning features">
                     <span>AI trip planner</span>
-                    <span>Live web search</span>
+                    <span>Optional live web search</span>
                     <span>Open map data</span>
                 </div>
                 <div class="roam-hero-actions">
