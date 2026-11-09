@@ -357,7 +357,7 @@ def verify_openai_api_key(
     # gate. Some hosted environments block or delay the model-list endpoint.
     # Store the key in this Gradio session and let the first chat request verify
     # it naturally. Invalid keys will then produce a clear chat error.
-    return candidate, tavily_candidate, "", "", gr.update(visible=False)
+    return candidate, tavily_candidate, "", "", gr.Column(visible=False)
 
 
 def _prompt_handler(prompt: str) -> Callable[[], str]:
@@ -1605,7 +1605,7 @@ with gr.Blocks(
         fn=_zerogpu_startup_compatibility,
         inputs=None,
         outputs=None,
-        api_name=False,
+        api_visibility="private",
     )
     openai_api_key_state = gr.State(value="")
     tavily_api_key_state = gr.State(value="")
@@ -1673,7 +1673,7 @@ with gr.Blocks(
             tavily_api_key_input,
             api_key_gate,
         ],
-        api_name=False,
+        api_visibility="private",
     )
 
     gr.HTML(
@@ -1819,7 +1819,7 @@ with gr.Blocks(
                     inputs=None,
                     outputs=[trip_textbox],
                     queue=False,
-                    api_name=False,
+                    api_visibility="private",
                 )
     gr.HTML(
         """
