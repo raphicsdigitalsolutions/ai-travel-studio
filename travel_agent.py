@@ -353,23 +353,10 @@ def verify_openai_api_key(
 
     tavily_candidate = tavily_api_key.strip()
 
-    try:
-        OpenAI(api_key=candidate, timeout=15.0).models.list()
-    except AuthenticationError as error:
-        raise gr.Error("That key was not accepted. Check it and try again.") from error
-    except APIConnectionError as error:
-        raise gr.Error(
-            "Could not connect to OpenAI. Check your connection and try again."
-        ) from error
-    except APIStatusError as error:
-        message = (
-            f"OpenAI could not verify this key (HTTP {error.status_code}). "
-            "Check its permissions and try again."
-        )
-        raise gr.Error(message) from error
-    except OpenAIError as error:
-        raise gr.Error("OpenAI key verification failed. Please try again.") from error
-
+    # Do not make a network request while the visitor is still in the startup
+    # gate. Some hosted environments block or delay the model-list endpoint.
+    # Store the key in this Gradio session and let the first chat request verify
+    # it naturally. Invalid keys will then produce a clear chat error.
     return candidate, tavily_candidate, "", "", gr.update(visible=False)
 
 
@@ -470,15 +457,22 @@ html, body, gradio-app { width: 100%; min-width: 0; background: #e8f4ef; }
     position: fixed !important;
     z-index: 9999 !important;
     inset: 0 !important;
-    /* Do not force display with !important: Gradio must be able to hide this
-       gate after the visitor's OpenAI key has been verified. */
-    display: flex;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 20px !important;
     background: rgba(3,18,26,.76) !important;
     backdrop-filter: blur(16px) saturate(1.2);
     animation: roam-key-fade .35s ease both;
+}
+
+/* Gradio hides invisible components with a hidden attribute or inline display.
+   These selectors must win over the overlay's display:flex rule. */
+.roam-key-gate[hidden],
+.roam-key-gate[style*="display: none"],
+.roam-key-gate[style*="display:none"],
+.roam-key-gate.hide {
+    display: none !important;
 }
 
 .roam-key-card {
