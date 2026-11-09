@@ -66,7 +66,7 @@ Optional model setting:
 6. Start the app:
 
    ```powershell
-   python travel_agent.py
+   python app.py
    ```
 
 7. Open `http://127.0.0.1:7860` and enter your OpenAI key in the startup modal.
@@ -96,7 +96,7 @@ app host and add the repository as a deployment source.
 
 1. Create a new Python web service from this GitHub repository.
 2. Build/install command: `pip install -r requirements.txt`.
-3. Start command: `python travel_agent.py`.
+3. Start command: `python app.py`.
 4. Add `TAVILY_API_KEY` (optional) and `OPENAI_MODEL` in the provider's environment
    settings. Never paste secrets into the start command or commit them.
 5. Ensure the host injects `PORT`; this app reads it automatically and binds to
