@@ -342,7 +342,7 @@ def _history_messages(history: list | None) -> list[BaseMessage]:
 
 def verify_openai_api_key(
     api_key: str, tavily_api_key: str, trust_confirmed: bool
-) -> tuple[str, str, str, str, dict]:
+) -> tuple[str, str, str, str]:
     """Verify OpenAI and keep both visitor-provided keys only in session state."""
     if not trust_confirmed:
         raise gr.Error("Confirm that you trust this app before sending your keys.")
@@ -357,7 +357,7 @@ def verify_openai_api_key(
     # gate. Some hosted environments block or delay the model-list endpoint.
     # Store the key in this Gradio session and let the first chat request verify
     # it naturally. Invalid keys will then produce a clear chat error.
-    return candidate, tavily_candidate, "", "", gr.Column(visible=False)
+    return candidate, tavily_candidate, "", ""
 
 
 def _prompt_handler(prompt: str) -> Callable[[], str]:
@@ -1605,7 +1605,7 @@ with gr.Blocks(
         fn=_zerogpu_startup_compatibility,
         inputs=None,
         outputs=None,
-        api_visibility="private",
+        api_name=False,
     )
     openai_api_key_state = gr.State(value="")
     tavily_api_key_state = gr.State(value="")
@@ -1671,9 +1671,13 @@ with gr.Blocks(
             tavily_api_key_state,
             openai_api_key_input,
             tavily_api_key_input,
-            api_key_gate,
         ],
-        api_visibility="private",
+        api_name=False,
+    ).then(
+        fn=None,
+        inputs=None,
+        outputs=None,
+        js="() => { const gate = document.getElementById('api-key-gate'); if (gate) gate.style.setProperty('display', 'none', 'important'); }",
     )
 
     gr.HTML(
@@ -1819,7 +1823,7 @@ with gr.Blocks(
                     inputs=None,
                     outputs=[trip_textbox],
                     queue=False,
-                    api_visibility="private",
+                    api_name=False,
                 )
     gr.HTML(
         """
