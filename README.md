@@ -87,9 +87,8 @@ app host and add the repository as a deployment source.
 4. In the Space, open **Settings → Variables and secrets**.
 5. Add `TAVILY_API_KEY` as a secret (optional, but required for live web search).
 6. Keep `OPENAI_MODEL` as a variable if you want to override the default.
-7. Make sure the Space uses `travel_agent.py` as its app entry file. If the Space
-   expects `app.py`, either rename the entry file or configure the SDK entry point
-   to `travel_agent.py` where the platform supports it.
+7. Keep `app.py` as the Gradio app entry file. It imports the `demo` Blocks
+   interface from `travel_agent.py`.
 8. The app binds to the platform-provided `PORT` and `0.0.0.0`. Once the build
    completes, open the Space URL and test the OpenAI key modal and a simple prompt.
 
@@ -123,7 +122,8 @@ Gradio share links for production; use the host's managed HTTPS domain.
 
 ## Project files
 
-- `travel_agent.py` — Gradio interface, API-key gate, LangGraph workflow, and tools.
+- `app.py` — simple deployment entry point for Gradio hosts.
+- `travel_agent.py` — Gradio interface, API-key gate, LangGraph workflow, tools, and launcher.
 - `requirements.txt` — Python dependencies.
 - `.gitignore` — excludes local secrets, virtual environments, and cache files.
 
