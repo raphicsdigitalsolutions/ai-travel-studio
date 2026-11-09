@@ -454,25 +454,21 @@ body, .gradio-container {
 html, body, gradio-app { width: 100%; min-width: 0; background: #e8f4ef; }
 
 .roam-key-gate {
+    /* Do not set display here: Gradio controls visibility on this component. */
     position: fixed !important;
     z-index: 9999 !important;
     inset: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
     padding: 20px !important;
     background: rgba(3,18,26,.76) !important;
     backdrop-filter: blur(16px) saturate(1.2);
     animation: roam-key-fade .35s ease both;
 }
 
-/* Gradio hides invisible components with a hidden attribute or inline display.
-   These selectors must win over the overlay's display:flex rule. */
-.roam-key-gate[hidden],
-.roam-key-gate[style*="display: none"],
-.roam-key-gate[style*="display:none"],
-.roam-key-gate.hide {
-    display: none !important;
+.roam-key-card {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
 }
 
 .roam-key-card {
