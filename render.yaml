@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: roamly-travel-studio
+    runtime: python
+    plan: free
+    branch: feat/roamly-3d-gradio-refresh
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: GRADIO_SERVER_NAME
+        value: 0.0.0.0
