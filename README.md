@@ -38,12 +38,30 @@ written to a file or browser local storage.
 on a deployment you control or trust. Use HTTPS for public deployments. Do not add
 API keys to Git, screenshots, logs, or README files.
 
-### Tavily key (optional server secret)
+### Tavily key (optional visitor key or server secret)
 
-Set `TAVILY_API_KEY` in the Space's Settings → Variables and secrets to enable current
-web search. Without it, the app still starts and supports AI planning, OpenStreetMap
-discovery, and flight-search links; the interface indicates that live web search is
-disabled.
+The startup popup asks for:
+- **OpenAI API key** — required for AI trip planning.
+- **Tavily API key** — optional; enables live web search for current travel information.
+
+You can leave the Tavily field blank. OpenStreetMap place discovery and AI trip
+planning still work, but live web search will not be available unless a key is
+provided.
+
+**Get a Tavily key for free:**
+1. Open [Tavily](https://tavily.com/) and create a free account (or sign in).
+2. Open the [Tavily dashboard](https://app.tavily.com/).
+3. Create or copy your API key from the API key section.
+4. Paste it into the optional Tavily field in Roamly's startup popup.
+
+Tavily offers a free usage tier; available credits and limits can change, so check
+the current plan details in your Tavily dashboard. Never publish your key or paste
+it into GitHub source code.
+
+For an owner-managed deployment, you can instead add `TAVILY_API_KEY` under the
+Hugging Face Space's **Settings → Variables and secrets**. This server secret is
+used as a fallback when a visitor does not enter a Tavily key. Do not add it to
+the repository or README.
 
 Optional model setting:
 
