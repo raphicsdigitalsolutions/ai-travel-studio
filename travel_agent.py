@@ -11,6 +11,7 @@ from typing import Annotated, Callable, Literal, TypedDict
 from urllib.parse import quote_plus
 
 import gradio as gr
+import spaces
 from openai import APIConnectionError, APIStatusError, AuthenticationError, OpenAI, OpenAIError
 import requests
 from dotenv import load_dotenv
@@ -1593,10 +1594,27 @@ theme = gr.themes.Soft(
     spacing_size="md",
 )
 
+# Hugging Face currently provisions this Space on ZeroGPU. The app itself
+# does not need GPU compute, but ZeroGPU requires at least one registered
+# @spaces.GPU Gradio event handler before startup.
+@spaces.GPU(duration=1)
+def _zerogpu_startup_compatibility() -> str:
+    """No-op handler registered only to satisfy the ZeroGPU startup check."""
+    return "Roamly does not require GPU compute."
+
+
 with gr.Blocks(
     title="Roamly | AI Travel Studio",
     fill_width=True,
 ) as demo:
+    # Keep the compatibility event hidden; normal visitors never need to run it.
+    zerogpu_compatibility_button = gr.Button(visible=False)
+    zerogpu_compatibility_button.click(
+        fn=_zerogpu_startup_compatibility,
+        inputs=None,
+        outputs=None,
+        api_name=False,
+    )
     openai_api_key_state = gr.State(value="")
     tavily_api_key_state = gr.State(value="")
     with gr.Column(elem_id="api-key-gate", elem_classes=["roam-key-gate"]) as api_key_gate:
