@@ -94,3 +94,10 @@ def test_api_key_dialog_requires_explicit_trust_before_saving_visitor_keys():
     assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in dialog
     assert 'elif not trust:' in dialog
     assert 'st.session_state.openai_key = openai_input.strip()' in dialog
+
+def test_dismissed_dialog_from_an_older_session_version_is_reopened():
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
+    assert 'KEY_DIALOG_VERSION = 2' in source
+    assert 'st.session_state.get("_key_dialog_version") != KEY_DIALOG_VERSION' in source
+    assert 'st.session_state.show_key_dialog = not bool(st.session_state.openai_key)' in source
+    assert 'st.session_state["_key_dialog_version"] = KEY_DIALOG_VERSION' in source
