@@ -65,39 +65,28 @@ def test_flight_tool_never_claims_to_provide_live_fares():
     assert "cannot verify live flight schedules or fares" in result
 
 
-def test_first_visit_opens_api_key_dialog_and_sidebar_can_reopen_it():
+def test_first_visit_shows_blocking_api_connection_screen_without_a_key():
     source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert '@st.dialog("Connect Roamly to your AI", width="small"' in source
-    assert 'st.session_state.show_key_dialog = not bool(st.session_state.openai_key)' in source
+    assert "def render_connection_gate():" in source
+    assert "if not st.session_state.openai_key:" in source
+    assert "render_connection_gate()" in source
+    assert "st.stop()" in source
+    assert "Connect Roamly to your AI" in source
+
+
+def test_connection_gate_requires_explicit_trust_before_saving_keys():
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
+    gate = source.split("def render_connection_gate():", 1)[1].split("if not st.session_state.openai_key:", 1)[0]
+    assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in gate
+    assert "elif not trust:" in gate
+    assert "st.session_state.openai_key = openai_input.strip()" in gate
+    assert "st.session_state.tavily_key = tavily_input.strip()" in gate
+
+
+def test_sidebar_can_reopen_connection_gate():
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
     assert 'st.button("Connect / manage API keys"' in source
-    assert 'st.session_state.show_key_dialog = False' in source
+    assert 'st.session_state.show_key_dialog = True' not in source
+    assert 'st.session_state.show_connection_gate = True' in source
 
 
-def test_api_key_dialog_requires_explicit_trust_before_saving_visitor_keys():
-    source = (ROOT / "app.py").read_text(encoding="utf-8")
-    dialog = source.split('@st.dialog("Connect Roamly to your AI", width="small"', 1)[1].split("\nwith st.sidebar:", 1)[0]
-    assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in dialog
-    assert 'elif not trust:' in dialog
-    assert 'st.session_state.openai_key = openai_input.strip()' in dialog
-
-def test_first_visit_opens_api_key_dialog_and_sidebar_can_reopen_it():
-    source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert '@st.dialog("Connect Roamly to your AI", width="small"' in source
-    assert 'st.session_state.show_key_dialog = not bool(st.session_state.openai_key)' in source
-    assert 'st.button("Connect / manage API keys"' in source
-    assert 'st.session_state.show_key_dialog = False' in source
-
-
-def test_api_key_dialog_requires_explicit_trust_before_saving_visitor_keys():
-    source = (ROOT / "app.py").read_text(encoding="utf-8")
-    dialog = source.split('@st.dialog("Connect Roamly to your AI", width="small"', 1)[1].split("with st.sidebar:", 1)[0]
-    assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in dialog
-    assert 'elif not trust:' in dialog
-    assert 'st.session_state.openai_key = openai_input.strip()' in dialog
-
-def test_dismissed_dialog_from_an_older_session_version_is_reopened():
-    source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert 'KEY_DIALOG_VERSION = 2' in source
-    assert 'st.session_state.get("_key_dialog_version") != KEY_DIALOG_VERSION' in source
-    assert 'st.session_state.show_key_dialog = not bool(st.session_state.openai_key)' in source
-    assert 'st.session_state["_key_dialog_version"] = KEY_DIALOG_VERSION' in source
