@@ -3,9 +3,11 @@ services:
     name: roamly-travel-studio
     runtime: python
     plan: free
-    branch: feat/roamly-3d-gradio-refresh
+    branch: feat/streamlit-deployment
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
     envVars:
-      - key: GRADIO_SERVER_NAME
-        value: 0.0.0.0
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
