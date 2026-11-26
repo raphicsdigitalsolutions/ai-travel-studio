@@ -205,7 +205,14 @@ if "openai_key" not in st.session_state:
     st.session_state.openai_key = _secret("OPENAI_API_KEY")
 if "tavily_key" not in st.session_state:
     st.session_state.tavily_key = _secret("TAVILY_API_KEY")
-if "show_key_dialog" not in st.session_state:
+# Bump this when the first-run connection flow changes. Streamlit preserves
+# session_state across reruns and deployments, so older dismissed dialogs must
+# be reconsidered after a UI update.
+KEY_DIALOG_VERSION = 2
+if st.session_state.get("_key_dialog_version") != KEY_DIALOG_VERSION:
+    st.session_state.show_key_dialog = not bool(st.session_state.openai_key)
+    st.session_state["_key_dialog_version"] = KEY_DIALOG_VERSION
+elif "show_key_dialog" not in st.session_state:
     st.session_state.show_key_dialog = not bool(st.session_state.openai_key)
 
 
