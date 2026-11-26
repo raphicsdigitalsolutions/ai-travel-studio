@@ -167,6 +167,8 @@ def _secret(name: str, fallback: str = "") -> str:
     return str(value or "").strip()
 
 
+os.environ["OPENAI_MODEL"] = _secret("OPENAI_MODEL", "gpt-4o-mini")
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "openai_key" not in st.session_state:
