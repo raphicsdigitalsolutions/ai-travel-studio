@@ -144,6 +144,36 @@ st.markdown(
     [data-testid="stChatMessage"] { border:1px solid rgba(255,255,255,.8);border-radius:17px;background:rgba(255,255,255,.6); }
     [data-testid="stChatInput"] { border-radius:16px; }
     .note { color:#718c8b;font-size:11px;line-height:1.7; }
+    .connect-dialog-copy { text-align:center;padding:3px 4px 15px; }
+    .connect-orb {
+      width:54px;height:54px;margin:0 auto 12px;display:grid;place-items:center;
+      border-radius:18px;color:white;font-size:25px;
+      background:linear-gradient(145deg,#55dfb2,#07836d);
+      box-shadow:0 10px 24px rgba(10,144,115,.22),inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .connect-dialog-copy h2 {
+      margin:0 0 8px;color:#153e40;font-family:'Manrope',sans-serif;
+      font-size:23px;font-weight:800;letter-spacing:-.045em;
+    }
+    .connect-dialog-copy p { margin:0;color:#668284;font-size:13px;line-height:1.65; }
+    .destination-card {
+      min-height:184px;padding:19px 20px 17px;border-radius:21px;
+      border:1px solid rgba(255,255,255,.96);
+      background:radial-gradient(circle at 100% 0,rgba(48,203,158,.18),transparent 9rem),
+        linear-gradient(145deg,rgba(255,255,255,.92),rgba(225,246,236,.9));
+      box-shadow:0 13px 30px rgba(18,100,83,.075),inset 0 1px 0 #fff;
+      transition:transform .2s ease,box-shadow .2s ease;
+    }
+    .destination-card:hover { transform:translateY(-3px);box-shadow:0 18px 34px rgba(18,100,83,.11); }
+    .destination-symbol {
+      width:34px;height:34px;display:grid;place-items:center;border-radius:11px;
+      color:#07836d;background:rgba(31,190,145,.13);font-size:18px;font-weight:900;
+    }
+    .destination-mood { margin-top:13px;color:#29927d;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase; }
+    .destination-card h3 { margin:4px 0 5px;color:#174548;font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.035em; }
+    .destination-card p { margin:0;color:#688382;font-size:12px;line-height:1.55; }
+    [data-testid="stDialog"] [data-testid="stForm"] { border:0;padding:0; }
+    [data-testid="stDialog"] [data-testid="stFormSubmitButton"] button { min-height:45px; }
     @media(max-width:850px) {
       .roam-hero { padding:34px 27px;min-height:0;flex-direction:column;align-items:flex-start; }
       .globe-stage { width:100%;height:250px;min-width:0; }
@@ -175,6 +205,59 @@ if "openai_key" not in st.session_state:
     st.session_state.openai_key = _secret("OPENAI_API_KEY")
 if "tavily_key" not in st.session_state:
     st.session_state.tavily_key = _secret("TAVILY_API_KEY")
+if "show_key_dialog" not in st.session_state:
+    st.session_state.show_key_dialog = not bool(st.session_state.openai_key)
+
+
+@st.dialog("Connect Roamly to your AI", width="small")
+def api_key_dialog():
+    st.markdown(
+        """
+        <div class="connect-dialog-copy">
+          <div class="connect-orb">✦</div>
+          <h2>Your journey starts with a connection</h2>
+          <p>Add an OpenAI API key to unlock personalised trip planning. A Tavily key is optional for live travel research.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    with st.form("first_run_api_keys_form"):
+        openai_input = st.text_input(
+            "OpenAI API key",
+            type="password",
+            placeholder="sk-...",
+            help="Required to generate AI travel plans.",
+        )
+        tavily_input = st.text_input(
+            "Tavily API key (optional)",
+            type="password",
+            placeholder="tvly-...",
+            help="Enables current web research and travel advisories.",
+        )
+        trust = st.checkbox("I trust this deployment with the API keys I enter.")
+        submitted = st.form_submit_button(
+            "Save connection & start planning",
+            type="primary",
+            use_container_width=True,
+        )
+        if submitted:
+            if not openai_input.strip():
+                st.error("An OpenAI API key is required.")
+            elif not trust:
+                st.error("Confirm that you trust this deployment before sending keys.")
+            else:
+                st.session_state.openai_key = openai_input.strip()
+                st.session_state.tavily_key = tavily_input.strip()
+                st.session_state.show_key_dialog = False
+                st.rerun()
+    if st.button("Explore first — I'll add my key later", use_container_width=True):
+        st.session_state.show_key_dialog = False
+        st.rerun()
+
+
+if st.session_state.show_key_dialog and not st.session_state.openai_key:
+    api_key_dialog()
+
 
 with st.sidebar:
     st.markdown('<div class="sidebar-brand">🌍 Roamly</div><div class="sidebar-sub">AI Travel Studio</div>', unsafe_allow_html=True)
@@ -214,6 +297,9 @@ with st.sidebar:
     st.divider()
     st.markdown("#### What Roamly can do")
     st.markdown("- Build practical trip itineraries\n- Find mapped hotels and restaurants\n- Discover airports and attractions\n- Create flight-search links\n- Search current travel information with Tavily")
+    if st.button("Connect / manage API keys", use_container_width=True):
+        st.session_state.show_key_dialog = True
+        st.rerun()
     if st.button("New conversation", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
@@ -257,6 +343,27 @@ for column, (number, title, description) in zip((c1, c2, c3), features):
             f'<div class="feature-card"><div class="feature-num">{number}</div><h3>{title}</h3><p>{description}</p></div>',
             unsafe_allow_html=True,
         )
+
+st.markdown(
+    '<div class="section-kicker">A little inspiration</div><div class="section-title">Pick a mood. We’ll shape the journey.</div>',
+    unsafe_allow_html=True,
+)
+destination_cols = st.columns(3, gap="medium")
+destinations = [
+    ("✦", "Culture & city lights", "Istanbul", "Historic streets, waterfront views, and local food.", "Plan a 4-day culture and food trip to Istanbul."),
+    ("⌁", "Slow travel & scenery", "Kyoto", "Quiet lanes, gardens, temples, and thoughtful pacing.", "Plan a 5-day slow-travel itinerary for Kyoto."),
+    ("☼", "Coast & sunshine", "Amalfi Coast", "Sea views, small towns, and relaxed day trips.", "Plan a 5-day coastal escape along the Amalfi Coast."),
+]
+for column, (symbol, mood, place, detail, prompt_text) in zip(destination_cols, destinations):
+    with column:
+        st.markdown(
+            f'<div class="destination-card"><div class="destination-symbol">{symbol}</div>'
+            f'<div class="destination-mood">{mood}</div><h3>{place}</h3><p>{detail}</p></div>',
+            unsafe_allow_html=True,
+        )
+        if st.button(f"Explore {place}", key=f"destination_{place}", use_container_width=True):
+            st.session_state.pending_prompt = prompt_text
+            st.rerun()
 
 st.markdown('<div class="section-kicker">Your personal travel desk</div><div class="section-title">Where shall we take you?</div>', unsafe_allow_html=True)
 
