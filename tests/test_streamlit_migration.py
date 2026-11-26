@@ -79,3 +79,18 @@ def test_api_key_dialog_requires_explicit_trust_before_saving_visitor_keys():
     assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in dialog
     assert 'elif not trust:' in dialog
     assert 'st.session_state.openai_key = openai_input.strip()' in dialog
+
+def test_first_visit_opens_api_key_dialog_and_sidebar_can_reopen_it():
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
+    assert '@st.dialog("Connect Roamly to your AI", width="small"' in source
+    assert 'st.session_state.show_key_dialog = not bool(st.session_state.openai_key)' in source
+    assert 'st.button("Connect / manage API keys"' in source
+    assert 'st.session_state.show_key_dialog = False' in source
+
+
+def test_api_key_dialog_requires_explicit_trust_before_saving_visitor_keys():
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
+    dialog = source.split('@st.dialog("Connect Roamly to your AI", width="small"', 1)[1].split("\\nwith st.sidebar:", 1)[0]
+    assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in dialog
+    assert 'elif not trust:' in dialog
+    assert 'st.session_state.openai_key = openai_input.strip()' in dialog
