@@ -30,4 +30,4 @@ jobs:
       - name: Compile Python files
         run: python -m compileall -q app.py travel_engine.py tests
       - name: Run tests
-        run: pytest -q
+        run: python -m pytest -q
