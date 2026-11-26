@@ -15,7 +15,7 @@ def test_requirements_use_streamlit_without_gradio_or_spaces():
     assert "streamlit" in requirements
     assert "langgraph" in requirements
     assert "gradio" not in requirements
-    assert "\\nspaces" not in requirements
+    assert "spaces" not in requirements
 
 
 def test_streamlit_config_sets_server_and_theme_defaults():
@@ -38,3 +38,28 @@ def test_readme_documents_streamlit_cloud_deployment():
     assert "Streamlit Community Cloud" in readme
     assert "app.py" in readme
     assert "OPENAI_API_KEY" in readme
+
+def test_place_formatter_returns_openstreetmap_links_and_disclaimer():
+    from travel_engine import _format_places
+
+    result = _format_places(
+        [{"lat": 31.5204, "lon": 74.3587, "tags": {"name": "Test Place", "amenity": "cafe"}}],
+        "Lahore",
+    )
+    assert "[Test Place](https://www.openstreetmap.org/" in result
+    assert "OpenStreetMap contributors" in result
+
+
+def test_flight_tool_never_claims_to_provide_live_fares():
+    from travel_engine import search_flights_tool
+
+    result = search_flights_tool.invoke(
+        {
+            "origin_city": "Lahore",
+            "destination_city": "Istanbul",
+            "departure_date": "2027-01-15",
+            "adults": 1,
+        }
+    )
+    assert "google.com/travel/flights" in result
+    assert "cannot verify live flight schedules or fares" in result
