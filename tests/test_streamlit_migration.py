@@ -67,7 +67,7 @@ def test_flight_tool_never_claims_to_provide_live_fares():
 
 def test_first_visit_shows_blocking_api_connection_screen_without_a_key():
     source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert "def render_connection_gate():" in source
+    assert "def render_connection_gate() -> None:" in source
     assert "if not st.session_state.openai_key:" in source
     assert "render_connection_gate()" in source
     assert "st.stop()" in source
