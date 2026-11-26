@@ -129,23 +129,25 @@ st.markdown(
     [data-testid="stChatInput"] { border-radius:16px; }
     .chat-panel { padding:20px 22px;border:1px solid rgba(255,255,255,.92);border-radius:22px;background:rgba(255,255,255,.62);box-shadow:0 15px 30px rgba(18,100,83,.055); }
     .note { color:#718c8b;font-size:10px;line-height:1.7; }
-    .gate-wrap { max-width:990px;margin:5vh auto 0;display:grid;grid-template-columns:1.06fr .94fr;min-height:570px;overflow:hidden;border-radius:34px;border:1px solid rgba(255,255,255,.96);background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(220,246,233,.88));box-shadow:0 35px 100px rgba(14,93,75,.16),inset 0 1px 0 #fff; }
-    .gate-art { position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:42px;overflow:hidden;background:radial-gradient(circle at 50% 46%,rgba(61,217,165,.28),transparent 18rem),linear-gradient(150deg,#e4f8ed,#cfeee0); }
+    .gate-art { position:relative;min-height:590px;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:34px;border-radius:30px;overflow:hidden;background:radial-gradient(circle at 50% 46%,rgba(61,217,165,.28),transparent 18rem),linear-gradient(150deg,#e4f8ed,#cfeee0);border:1px solid rgba(255,255,255,.95);box-shadow:0 30px 70px rgba(14,93,75,.12),inset 0 1px 0 #fff; }
     .gate-art:before,.gate-art:after { content:"";position:absolute;border:1px solid rgba(8,132,119,.13);border-radius:50%;pointer-events:none; }
     .gate-art:before { width:420px;height:420px;left:3%;top:18%;box-shadow:0 0 0 25px rgba(8,132,119,.025),0 0 0 50px rgba(8,132,119,.02); }
     .gate-brand { position:relative;z-index:3;font-family:'Manrope',sans-serif;font-size:23px;font-weight:900;color:#14584f;letter-spacing:-.06em; }
-    .gate-caption { position:relative;z-index:3;max-width:300px;color:#51756e;font-size:13px;line-height:1.75; }
+    .gate-bottom { position:relative;z-index:3; }
+    .gate-bottom h2 { margin:7px 0 13px;color:#164b46;font-family:'Manrope',sans-serif;font-size:34px;font-weight:900;line-height:1.03;letter-spacing:-.06em; }
+    .gate-bottom h2 em { color:#079779;font-style:normal; }
+    .gate-caption { position:relative;z-index:3;max-width:300px;color:#51756e;font-size:12px;line-height:1.75; }
     .gate-planet-wrap { position:absolute;inset:0;display:grid;place-items:center;perspective:900px; }
     .gate-planet { position:relative;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle at 28% 24%,#fff,transparent 17%),radial-gradient(circle at 35% 35%,#78e9bb,#1bbd91 46%,#076a66 85%);box-shadow:inset -22px -22px 40px rgba(1,50,52,.32),inset 9px 8px 22px rgba(255,255,255,.5),0 35px 60px rgba(4,93,78,.25),0 0 70px rgba(27,199,151,.25);transform:rotateX(14deg) rotateY(-20deg);animation:planet-float 7s ease-in-out infinite alternate; }
     .gate-ring { position:absolute;width:300px;height:120px;border:1px solid rgba(9,128,111,.42);border-radius:50%;transform:rotate(-26deg) rotateX(66deg);animation:orbit-spin 24s linear infinite; }
-    .gate-form { display:flex;flex-direction:column;justify-content:center;padding:48px 44px; }
     .gate-kicker { color:#27947d;font-size:10px;font-weight:900;letter-spacing:.19em;text-transform:uppercase; }
-    .gate-form h1 { color:#153e40;font-family:'Manrope',sans-serif;font-size:31px;font-weight:900;line-height:1.08;letter-spacing:-.06em;margin:12px 0 10px; }
-    .gate-form p { color:#688382;font-size:12px;line-height:1.7;margin:0 0 22px; }
+    .gate-form h1 { color:#153e40;font-family:'Manrope',sans-serif;font-size:29px;font-weight:900;line-height:1.08;letter-spacing:-.06em;margin:9px 0 10px; }
+    .gate-form p { color:#688382;font-size:12px;line-height:1.7;margin:0 0 14px; }
     .gate-foot { color:#879b96;font-size:10px;line-height:1.6;margin-top:14px; }
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.gate-form) { min-height:590px;height:100%;border:1px solid rgba(255,255,255,.96);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(227,248,238,.9));box-shadow:0 30px 70px rgba(14,93,75,.1),inset 0 1px 0 #fff;padding:28px;justify-content:center; }
     .stForm { border:0;padding:0;background:transparent; }
     @media(max-width:900px) { .hero { padding:38px 30px;min-height:0; } .hero-art { width:320px;min-width:250px; } .planet { width:175px;height:175px; } .stat-row { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-width:700px) { .block-container { padding-top:1rem; } .hero { flex-direction:column;align-items:flex-start;padding:30px 24px; } .hero-art { width:100%;height:265px;min-width:0; } .hero-copy h1 { font-size:clamp(2.8rem,13vw,4rem); } .stat-row { grid-template-columns:repeat(2,minmax(0,1fr)); } .gate-wrap { grid-template-columns:1fr;margin:1vh auto; } .gate-art { min-height:230px;padding:25px; } .gate-art:before { width:260px;height:260px;left:20%;top:-5%; } .gate-planet { width:120px;height:120px; } .gate-ring { width:210px;height:88px; } .gate-caption { max-width:240px;font-size:11px; } .gate-form { padding:30px 24px; } .gate-form h1 { font-size:27px; } }
+    @media(max-width:700px) { .block-container { padding-top:1rem; } .hero { flex-direction:column;align-items:flex-start;padding:30px 24px; } .hero-art { width:100%;height:265px;min-width:0; } .hero-copy h1 { font-size:clamp(2.8rem,13vw,4rem); } .stat-row { grid-template-columns:repeat(2,minmax(0,1fr)); } .gate-art { min-height:270px;padding:24px; } [data-testid="stVerticalBlockBorderWrapper"]:has(.gate-form) { min-height:0;padding:22px; } .gate-art:before { width:260px;height:260px;left:20%;top:-5%; } .gate-planet { width:120px;height:120px; } .gate-ring { width:210px;height:88px; } .gate-caption { max-width:240px;font-size:11px; } .gate-form { padding:30px 24px; } .gate-form h1 { font-size:27px; } }
     @media(prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important; } }
     </style>
     """,
@@ -177,60 +179,67 @@ if "show_connection_gate" not in st.session_state:
 
 def render_connection_gate() -> None:
     """Blocking first-run API setup; avoids dismissible modal/session-state quirks."""
-    st.markdown(
-        """
-        <div class="gate-wrap">
-          <section class="gate-art">
-            <div class="gate-brand">🌍 Roamly</div>
-            <div class="gate-planet-wrap"><div class="gate-ring"></div><div class="gate-planet"></div></div>
-            <div class="gate-caption">A calmer way to discover the world. Build thoughtful journeys with an AI travel companion.</div>
-          </section>
-          <section class="gate-form">
-            <div class="gate-kicker">Start your journey</div>
-            <h1>Connect your travel intelligence.</h1>
-            <p>Enter an OpenAI API key to unlock personalised trip planning. Add Tavily optionally for current destination research and travel advisories.</p>
-          </section>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    # Streamlit widgets cannot be inserted inside the HTML card, so use a
-    # centered form directly below the visual card with matching visual style.
-    left, center, right = st.columns([1, 2, 1])
-    with center:
-        with st.form("blocking_api_connection_form", clear_on_submit=False):
-            openai_input = st.text_input(
-                "OpenAI API key",
-                type="password",
-                placeholder="sk-...",
-                help="Required. Your key stays in this Streamlit session and is not written to GitHub.",
-            )
-            tavily_input = st.text_input(
-                "Tavily API key (optional)",
-                type="password",
-                placeholder="tvly-...",
-                help="Optional: enables current web research.",
-            )
-            trust = st.checkbox("I trust this deployment with the API keys I enter.")
-            submitted = st.form_submit_button(
-                "Connect securely and enter Roamly",
-                type="primary",
-                use_container_width=True,
-            )
-            if submitted:
-                if not openai_input.strip():
-                    st.error("An OpenAI API key is required.")
-                elif not trust:
-                    st.error("Confirm that you trust this deployment before sending keys.")
-                else:
-                    st.session_state.openai_key = openai_input.strip()
-                    st.session_state.tavily_key = tavily_input.strip()
-                    st.session_state.show_connection_gate = False
-                    st.rerun()
+    left, right = st.columns([1.05, 0.95], gap="small")
+    with left:
         st.markdown(
-            '<div class="gate-foot">Your key is used only to make requests to OpenAI for this session. Never enter API keys on a deployment you do not control or trust.</div>',
+            """
+            <section class="gate-art">
+              <div class="gate-brand">🌍 Roamly <span style="font-size:9px;font-weight:700;letter-spacing:.18em;">TRAVEL STUDIO</span></div>
+              <div class="gate-planet-wrap"><div class="gate-ring"></div><div class="gate-planet"></div></div>
+              <div class="gate-bottom">
+                <div class="gate-kicker">A new perspective awaits</div>
+                <h2>Make room for<br>the <em>unexpected.</em></h2>
+                <div class="gate-caption">Discover places beyond the usual, bring your travel ideas together, and build a journey that feels like yours.</div>
+              </div>
+            </section>
+            """,
             unsafe_allow_html=True,
         )
+    with right:
+        with st.container(border=True):
+            st.markdown(
+                """
+                <div class="gate-form">
+                  <div class="gate-kicker">Your AI travel companion</div>
+                  <h1>Connect Roamly to your AI.</h1>
+                  <p>Enter an OpenAI API key to unlock personalised trip planning. Add Tavily optionally for current destination research and travel advisories.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            with st.form("blocking_api_connection_form", clear_on_submit=False):
+                openai_input = st.text_input(
+                    "OpenAI API key",
+                    type="password",
+                    placeholder="sk-...",
+                    help="Required. Your key stays in this Streamlit session and is not written to GitHub.",
+                )
+                tavily_input = st.text_input(
+                    "Tavily API key (optional)",
+                    type="password",
+                    placeholder="tvly-...",
+                    help="Optional: enables current web research.",
+                )
+                trust = st.checkbox("I trust this deployment with the API keys I enter.")
+                submitted = st.form_submit_button(
+                    "Connect securely and enter Roamly",
+                    type="primary",
+                    use_container_width=True,
+                )
+                if submitted:
+                    if not openai_input.strip():
+                        st.error("An OpenAI API key is required.")
+                    elif not trust:
+                        st.error("Confirm that you trust this deployment before sending keys.")
+                    else:
+                        st.session_state.openai_key = openai_input.strip()
+                        st.session_state.tavily_key = tavily_input.strip()
+                        st.session_state.show_connection_gate = False
+                        st.rerun()
+            st.markdown(
+                '<p class="gate-foot">Your key is used only to make requests to OpenAI for this session. Never enter API keys on a deployment you do not control or trust.</p>',
+                unsafe_allow_html=True,
+            )
 
 
 # This gate is deliberately blocking when no key is available. It is not a
