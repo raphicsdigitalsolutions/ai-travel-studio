@@ -76,7 +76,7 @@ def test_first_visit_shows_blocking_api_connection_screen_without_a_key():
 
 def test_connection_gate_requires_explicit_trust_before_saving_keys():
     source = (ROOT / "app.py").read_text(encoding="utf-8")
-    gate = source.split("def render_connection_gate():", 1)[1].split("if not st.session_state.openai_key:", 1)[0]
+    gate = source.split("def render_connection_gate() -> None:", 1)[1].split("# This gate is deliberately blocking", 1)[0]
     assert 'st.checkbox("I trust this deployment with the API keys I enter.")' in gate
     assert "elif not trust:" in gate
     assert "st.session_state.openai_key = openai_input.strip()" in gate
@@ -85,7 +85,7 @@ def test_connection_gate_requires_explicit_trust_before_saving_keys():
 
 def test_sidebar_can_reopen_connection_gate():
     source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert 'st.button("Connect / manage API keys"' in source
+    assert 'st.button("Connect / update API keys"' in source
     assert 'st.session_state.show_key_dialog = True' not in source
     assert 'st.session_state.show_connection_gate = True' in source
 
