@@ -3,3 +3,6 @@
 __pycache__/
 *.py[cod]
 .gradio/
+
+# Streamlit deployment secrets
+.streamlit/secrets.toml
